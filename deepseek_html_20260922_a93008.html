@@ -1,0 +1,2773 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DSA Patterns Tracker</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --card2: #16213e;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --border: #334155;
+        --easy: #22c55e;
+        --medium: #f59e0b;
+        --hard: #ef4444;
+        --notstarted: #64748b;
+        --done: #22c55e;
+        --revision: #a855f7;
+        --revisit: #f59e0b;
+      }
+      [data-theme="light"] {
+        --bg: #f1f5f9;
+        --card: #ffffff;
+        --card2: #f8fafc;
+        --text: #0f172a;
+        --muted: #64748b;
+        --accent: #0284c7;
+        --border: #e2e8f0;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        padding: 20px;
+        transition:
+          background 0.3s,
+          color 0.3s;
+        line-height: 1.5;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      h1 span {
+        color: var(--accent);
+      }
+      .header-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        background: var(--card);
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 8px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        font-family: inherit;
+      }
+      button:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      button.primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      button.primary:hover {
+        opacity: 0.85;
+        color: #fff;
+      }
+      button.danger {
+        color: var(--hard);
+        border-color: var(--hard);
+      }
+      button.danger:hover {
+        background: var(--hard);
+        color: #fff;
+      }
+      button.small {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      .stat-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 16px;
+      }
+      .stat-card h3 {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      .stat-value {
+        font-size: 1.7rem;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .stat-value small {
+        font-size: 0.9rem;
+        color: var(--muted);
+        font-weight: 400;
+      }
+      .stat-sub {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 4px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .stat-sub span {
+        white-space: nowrap;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 7px;
+        background: var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 8px;
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), #8b5cf6);
+        border-radius: 4px;
+        transition: width 0.4s ease;
+        width: 0%;
+      }
+
+      .controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+        align-items: center;
+      }
+      .controls input,
+      .controls select {
+        background: var(--card);
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        outline: none;
+        font-family: inherit;
+      }
+      .controls input:focus,
+      .controls select:focus {
+        border-color: var(--accent);
+      }
+      .controls input[type="text"] {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .pattern-section {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 12px;
+        overflow: hidden;
+      }
+      .pattern-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        cursor: pointer;
+        user-select: none;
+        background: var(--card2);
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s;
+      }
+      .pattern-header:hover {
+        background: rgba(56, 189, 248, 0.08);
+      }
+      .pattern-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .pattern-title .arrow {
+        color: var(--muted);
+        transition: transform 0.2s;
+        font-size: 0.7rem;
+      }
+      .pattern-section.collapsed .arrow {
+        transform: rotate(-90deg);
+      }
+      .pattern-section.collapsed .pattern-body {
+        display: none;
+      }
+      .pattern-stats {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .pattern-progress {
+        width: 120px;
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .pattern-progress .progress-fill {
+        margin: 0;
+      }
+
+      .pattern-body {
+        padding: 0;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 860px;
+      }
+      th,
+      td {
+        padding: 9px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.86rem;
+        vertical-align: top;
+      }
+      th {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        background: var(--bg);
+        font-weight: 600;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: rgba(56, 189, 248, 0.06);
+      }
+      tr.row-done {
+        opacity: 0.75;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 2px 9px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+        transition: filter 0.15s;
+      }
+      .badge:hover {
+        filter: brightness(1.2);
+      }
+      .badge.not-started {
+        background: rgba(100, 116, 139, 0.18);
+        color: var(--notstarted);
+      }
+      .badge.done {
+        background: rgba(34, 197, 94, 0.18);
+        color: var(--done);
+      }
+      .badge.revision {
+        background: rgba(168, 85, 247, 0.18);
+        color: var(--revision);
+      }
+      .badge.revisit {
+        background: rgba(245, 158, 11, 0.18);
+        color: var(--revisit);
+      }
+
+      .tag-badge {
+        display: inline-block;
+        padding: 1px 7px;
+        border-radius: 4px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        background: rgba(56, 189, 248, 0.12);
+        color: var(--accent);
+        white-space: nowrap;
+      }
+
+      .links {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .links a {
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.78rem;
+        padding: 1px 7px;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .links a:hover {
+        border-color: var(--accent);
+        background: rgba(56, 189, 248, 0.08);
+        text-decoration: none;
+      }
+
+      .row-actions {
+        display: flex;
+        gap: 4px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted);
+      }
+      .empty-state p {
+        margin-bottom: 16px;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 20px;
+      }
+      .modal-overlay.active {
+        display: flex;
+      }
+      .modal {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px;
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .modal h2 {
+        margin-bottom: 16px;
+        font-size: 1.15rem;
+      }
+      .form-group {
+        margin-bottom: 13px;
+      }
+      .form-group label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        outline: none;
+        font-family: inherit;
+      }
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        border-color: var(--accent);
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: var(--card);
+        border: 1px solid var(--accent);
+        color: var(--text);
+        padding: 11px 20px;
+        border-radius: 8px;
+        opacity: 0;
+        transition: all 0.3s;
+        z-index: 200;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        font-size: 0.88rem;
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+
+      @media (max-width: 640px) {
+        h1 {
+          font-size: 1.15rem;
+        }
+        .stat-value {
+          font-size: 1.3rem;
+        }
+        th,
+        td {
+          padding: 7px;
+          font-size: 0.78rem;
+        }
+        .pattern-progress {
+          width: 70px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🧠 DSA <span>Patterns Tracker</span></h1>
+        <div class="header-actions">
+          <button id="expandAll">Expand All</button>
+          <button id="collapseAll">Collapse All</button>
+          <button id="exportBtn">📤 Export CSV</button>
+          <button id="addBtn" class="primary">+ Add Problem</button>
+          <button id="themeBtn">☀️</button>
+        </div>
+      </header>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Problems</h3>
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-sub"><span id="statPatterns">0 patterns</span></div>
+        </div>
+        <div class="stat-card">
+          <h3>Completed</h3>
+          <div class="stat-value">
+            <span id="statDone">0</span> <small id="statDonePct">(0%)</small>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="overallProgress"></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <h3>Status Breakdown</h3>
+          <div class="stat-sub" style="margin-top: 6px">
+            <span style="color: var(--done)"
+              >● <span id="statDoneCount">0</span> Done</span
+            >
+            <span style="color: var(--revision)"
+              >● <span id="statRevision">0</span> Revision</span
+            >
+            <span style="color: var(--revisit)"
+              >● <span id="statRevisit">0</span> Revisit</span
+            >
+            <span style="color: var(--notstarted)"
+              >● <span id="statNotStarted">0</span> Pending</span
+            >
+          </div>
+        </div>
+        <div class="stat-card">
+          <h3>Most Complete Pattern</h3>
+          <div
+            class="stat-value"
+            style="font-size: 1.05rem; font-weight: 600"
+            id="statTopPattern"
+          >
+            —
+          </div>
+          <div class="stat-sub"><span id="statTopPatternPct"></span></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="🔍 Search problems, tags, or patterns..."
+        />
+        <select id="filterPattern">
+          <option value="">All Patterns</option>
+        </select>
+        <select id="filterStatus">
+          <option value="">All Status</option>
+          <option value="Not Started">Not Started</option>
+          <option value="Done">Done</option>
+          <option value="Revision">Revision</option>
+          <option value="Revisit">Revisit</option>
+        </select>
+        <button id="clearFilters">Clear</button>
+      </div>
+
+      <div id="patternsContainer"></div>
+      <div class="empty-state" id="emptyState" style="display: none">
+        <p>No problems match your filters.</p>
+        <button id="clearFilters2" class="primary">Clear Filters</button>
+      </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h2 id="modalTitle">Add Problem</h2>
+        <input type="hidden" id="editPattern" />
+        <input type="hidden" id="editIndex" />
+        <div class="form-group">
+          <label>Problem Name *</label>
+          <input type="text" id="fName" placeholder="e.g. Two Sum" />
+        </div>
+        <div class="form-group">
+          <label>Pattern / Section</label>
+          <input
+            type="text"
+            id="fPattern"
+            list="patternList"
+            placeholder="e.g. Two Pointers"
+          />
+          <datalist id="patternList"></datalist>
+        </div>
+        <div class="form-group">
+          <label>Tag (optional)</label>
+          <input
+            type="text"
+            id="fTag"
+            placeholder="e.g. Traversal, Kth, GREEDY+heap"
+          />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="fStatus">
+            <option>Not Started</option>
+            <option>Done</option>
+            <option>Revision</option>
+            <option>Revisit</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Links (one per line)</label>
+          <textarea
+            id="fLinks"
+            rows="3"
+            placeholder="https://leetcode.com/problems/..."
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="fNotes" rows="2" placeholder="Optional"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button id="cancelBtn">Cancel</button>
+          <button id="saveBtn" class="primary">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      // ============================================================
+      // PRE-LOADED DATA from your DSA patterns cheat sheet
+      // ============================================================
+      const SEED_DATA = [
+        // 1. Two Pointers
+        {
+          pattern: "1. Two Pointers",
+          name: "Pair with Target Sum (easy)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/description/",
+          ],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Rearrange 0 and 1",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://www.geeksforgeeks.org/problems/segregate-0s-and-1s5106/1",
+          ],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Remove Duplicates (easy)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/remove-duplicates-from-sorted-list/",
+            "https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/",
+            "https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/",
+          ],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Squaring a Sorted Array (easy)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/squares-of-a-sorted-array/"],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Triplet Sum to Zero (medium)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/3sum/"],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Triplet Sum Close to Target (medium)",
+          tag: "",
+          status: "Revision",
+          links: ["https://leetcode.com/problems/3sum-closest/"],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Triplets with Smaller Sum (medium)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://www.geeksforgeeks.org/problems/count-triplets-with-sum-smaller-than-x5549/1",
+          ],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Subarrays with Product Less than a Target (medium)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/subarray-product-less-than-k/",
+          ],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Dutch National Flag Problem (medium)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/sort-colors/description/"],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Problem Challenge 1: Quadruple Sum to Target (medium)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/4sum/"],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Problem Challenge 2: Comparing Strings containing Backspaces (medium)",
+          tag: "",
+          status: "Revision",
+          links: ["https://leetcode.com/problems/backspace-string-compare/"],
+        },
+        {
+          pattern: "1. Two Pointers",
+          name: "Problem Challenge 3: Minimum Window Sort (medium)",
+          tag: "",
+          status: "Revision",
+          links: [
+            "https://leetcode.com/problems/shortest-unsorted-continuous-subarray/",
+            "https://www.ideserve.co.in/learn/minimum-length-subarray-sorting-which-results-in-sorted-array",
+          ],
+        },
+
+        // 2. Fast & Slow Pointers
+        {
+          pattern: "2. Fast & Slow Pointers",
+          name: "LinkedList Cycle (easy)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/linked-list-cycle/"],
+        },
+        {
+          pattern: "2. Fast & Slow Pointers",
+          name: "Start of LinkedList Cycle (medium)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/linked-list-cycle-ii/"],
+        },
+        {
+          pattern: "2. Fast & Slow Pointers",
+          name: "Happy Number (medium)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/happy-number/"],
+        },
+        {
+          pattern: "2. Fast & Slow Pointers",
+          name: "FIND DUPLICATE NUMBER",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/find-the-duplicate-number/description/",
+          ],
+        },
+        {
+          pattern: "2. Fast & Slow Pointers",
+          name: "Middle of the LinkedList (easy)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/middle-of-the-linked-list/"],
+        },
+        {
+          pattern: "2. Fast & Slow Pointers",
+          name: "Problem Challenge 1: Palindrome LinkedList (medium)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/palindrome-linked-list/"],
+        },
+        {
+          pattern: "2. Fast & Slow Pointers",
+          name: "Problem Challenge 2: Rearrange a LinkedList (medium)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/reorder-list/"],
+        },
+        {
+          pattern: "2. Fast & Slow Pointers",
+          name: "Problem Challenge 3: Cycle in a Circular Array (hard)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/circular-array-loop/"],
+        },
+
+        // 3. Sliding Window
+        {
+          pattern: "3. Sliding Window",
+          name: "Maximum Sum Subarray of Size K (easy)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://www.geeksforgeeks.org/problems/max-sum-subarray-of-size-k5313/1",
+          ],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Smallest Subarray with a given sum (easy)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/minimum-size-subarray-sum/"],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Longest Substring with K Distinct Characters (medium)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://www.geeksforgeeks.org/problems/longest-k-unique-characters-substring0853/1",
+          ],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Fruits into Baskets (medium)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/fruit-into-baskets/"],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "No-repeat Substring (hard)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+          ],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Longest Substring with Same Letters after Replacement (hard)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/longest-repeating-character-replacement/",
+          ],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Longest Subarray with Ones after Replacement (hard)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/max-consecutive-ones-iii/"],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Minimum size subarray SUM",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/minimum-size-subarray-sum/"],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Minimum Size Substring (HARD)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/minimum-window-substring/description/?envType=study-plan-v2&envId=top-interview-150",
+          ],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Problem Challenge 1: Permutation in a String (hard)",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/permutation-in-string/"],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Problem Challenge 2: String Anagrams (hard)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/find-all-anagrams-in-a-string/",
+          ],
+        },
+        {
+          pattern: "3. Sliding Window",
+          name: "Problem Challenge 4: Words Concatenation (hard)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/substring-with-concatenation-of-all-words/",
+          ],
+        },
+
+        // Kadane
+        {
+          pattern: "Kadane Pattern",
+          name: "Maximum subarray sum",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/maximum-subarray/"],
+        },
+        {
+          pattern: "Kadane Pattern",
+          name: "Minimum Subarray Sum",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://www.geeksforgeeks.org/problems/smallest-sum-contiguous-subarray/1",
+          ],
+        },
+        {
+          pattern: "Kadane Pattern",
+          name: "Maximum product subarray",
+          tag: "",
+          status: "Done",
+          links: ["https://leetcode.com/problems/maximum-product-subarray/"],
+        },
+        {
+          pattern: "Kadane Pattern",
+          name: "Maximum subarray sum with one deletion",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/maximum-subarray-sum-with-one-deletion/description/",
+          ],
+        },
+        {
+          pattern: "Kadane Pattern",
+          name: "Maximum absolute sum of any subarray",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/maximum-absolute-sum-of-any-subarray/",
+          ],
+        },
+        {
+          pattern: "Kadane Pattern",
+          name: "Maximum sum in circular array variant",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/maximum-sum-circular-subarray/",
+          ],
+        },
+
+        // Prefix Sum
+        {
+          pattern: "Prefix Sum",
+          name: "Subarray Sum Equals K (EASY)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/subarray-sum-equals-k/description/",
+          ],
+        },
+        {
+          pattern: "Prefix Sum",
+          name: "Find Pivot Index (EASY)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/find-pivot-index/description/",
+          ],
+        },
+        {
+          pattern: "Prefix Sum",
+          name: "Subarray Sums Divisible By K (Med)",
+          tag: "",
+          status: "Done",
+          links: [
+            "https://leetcode.com/problems/subarray-sums-divisible-by-k/description/",
+          ],
+        },
+        {
+          pattern: "Prefix Sum",
+          name: "Contiguous array (MED)",
+          tag: "",
+          status: "Revisit",
+          links: [
+            "https://leetcode.com/problems/contiguous-array/description/",
+          ],
+        },
+        {
+          pattern: "Prefix Sum",
+          name: "Problem challenge: Shortest Subarray With Sum at Least K (HARD)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/description/",
+          ],
+        },
+        {
+          pattern: "Prefix Sum",
+          name: "Problem challenge: Count Range Sum (hard)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/count-of-range-sum/description/",
+          ],
+        },
+
+        // Merge Intervals
+        {
+          pattern: "4. Merge Intervals",
+          name: "Merge Intervals (medium)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/merge-intervals/description/"],
+        },
+        {
+          pattern: "4. Merge Intervals",
+          name: "Insert Interval (medium)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/insert-interval/"],
+        },
+        {
+          pattern: "4. Merge Intervals",
+          name: "Intervals Intersection (medium)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/interval-list-intersections/description/",
+          ],
+        },
+        {
+          pattern: "4. Merge Intervals",
+          name: "Overlapping Intervals",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/check-if-any-two-intervals-overlap-among-a-given-set-of-intervals/",
+          ],
+        },
+        {
+          pattern: "4. Merge Intervals",
+          name: "Problem Challenge 1: Minimum Meeting Rooms (hard)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/attend-all-meetings-ii/1",
+          ],
+        },
+        {
+          pattern: "4. Merge Intervals",
+          name: "Problem Challenge 2: Maximum CPU Load (hard)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/maximum-cpu-load-from-the-given-list-of-jobs/",
+          ],
+        },
+        {
+          pattern: "4. Merge Intervals",
+          name: "Problem Challenge 3: Employee Free Time (hard)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://www.codertrain.co/employee-free-time"],
+        },
+
+        // In-place Reversal
+        {
+          pattern: "6. In-place Reversal of LinkedList",
+          name: "Reverse a LinkedList (easy)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/reverse-linked-list/"],
+        },
+        {
+          pattern: "6. In-place Reversal of LinkedList",
+          name: "Reverse a Sub-list (medium)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/reverse-linked-list-ii/"],
+        },
+        {
+          pattern: "6. In-place Reversal of LinkedList",
+          name: "Reverse List in Pairs (Medium)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/swap-nodes-in-pairs/description/",
+          ],
+        },
+        {
+          pattern: "6. In-place Reversal of LinkedList",
+          name: "Reverse every K-element Sub-list (HARD)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/reverse-nodes-in-k-group/"],
+        },
+        {
+          pattern: "6. In-place Reversal of LinkedList",
+          name: "Problem Challenge 1: Reverse nodes in EVEN Length Groups (HARD)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/reverse-nodes-in-even-length-groups/description/",
+          ],
+        },
+        {
+          pattern: "6. In-place Reversal of LinkedList",
+          name: "Problem Challenge 2: Rotate a LinkedList (medium)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/rotate-list/"],
+        },
+
+        // Stack
+        {
+          pattern: "7. Stack",
+          name: "remove adjacent duplicates",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/description/",
+          ],
+        },
+        {
+          pattern: "7. Stack",
+          name: "Balanced Parentheses",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/valid-parentheses/description/",
+          ],
+        },
+        {
+          pattern: "7. Stack",
+          name: "Reverse a String",
+          tag: "",
+          status: "Not Started",
+          links: [],
+        },
+        {
+          pattern: "7. Stack",
+          name: "Next Greater Element (easy)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/next-greater-element-ii/description/",
+          ],
+        },
+        {
+          pattern: "7. Stack",
+          name: "Daily Temperatures (easy)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/daily-temperatures/"],
+        },
+        {
+          pattern: "7. Stack",
+          name: "Remove Nodes From Linked List (easy)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/remove-nodes-from-linked-list/",
+          ],
+        },
+        {
+          pattern: "7. Stack",
+          name: "Remove All Adjacent Duplicates in String II (medium)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/",
+          ],
+        },
+        {
+          pattern: "7. Stack",
+          name: "Simplify Path (Problem Challenge)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/simplify-path/"],
+        },
+        {
+          pattern: "7. Stack",
+          name: "Remove K Digits (hard) Problem challenge",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/remove-k-digits/"],
+        },
+
+        // Hash Maps
+        {
+          pattern: "9. Hash Maps",
+          name: "First Non-repeating Character (easy)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/first-unique-character-in-a-string/",
+          ],
+        },
+        {
+          pattern: "9. Hash Maps",
+          name: "Maximum Number of Balloons (easy)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/maximum-number-of-balloons/"],
+        },
+        {
+          pattern: "9. Hash Maps",
+          name: "Longest Palindrome (easy)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/longest-palindrome/"],
+        },
+        {
+          pattern: "9. Hash Maps",
+          name: "Ransom Note (easy)",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/ransom-note/"],
+        },
+
+        // Binary Search
+        {
+          pattern: "10. Binary Search",
+          name: "Binary search basic",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/binary-search/"],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Upper Bound/ Ceiling",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/ceil-in-a-sorted-array/1",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "First and Last position",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Count number of occurences",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/number-of-occurrence2259/1",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Search in infinite Sorted array",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/find-position-element-sorted-array-infinite-numbers/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Peak index in Mountain",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/peak-index-in-a-mountain-array/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Find peak in mountain range",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/find-peak-element/"],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Find minimum in rotated sorted array",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Find number of rotations to sorted array",
+          tag: "",
+          status: "Not Started",
+          links: ["https://www.geeksforgeeks.org/problems/rotation4723/1"],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Search in rotated sorted array",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/search-in-rotated-sorted-array/description/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "KOKO eating BANANAS",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/koko-eating-bananas/"],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Min num of days to make m bouquets",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Aggresive cows",
+          tag: "",
+          status: "Not Started",
+          links: ["https://www.geeksforgeeks.org/problems/aggressive-cows/1"],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "H index 2",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/h-index-ii/description/"],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Max candies to k children",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/maximum-candies-allocated-to-k-children/description/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Capacity to ship packages in d days",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/description/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Book Allocation Problem",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/allocate-minimum-number-of-pages0937/1",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Split largest arrray",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/split-array-largest-sum/description/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Search 2 D matrix",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/search-a-2d-matrix/"],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "Search 2D matrix (Hard)",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/search-a-2d-matrix-ii/description/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "kth smallest in sorted matrix",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/description/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "kth smallest in multiplication matrix",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/kth-smallest-number-in-multiplication-table/description/",
+          ],
+        },
+        {
+          pattern: "10. Binary Search",
+          name: "median of 2 sorted arrays",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/median-of-two-sorted-arrays/"],
+        },
+
+        // Heap
+        {
+          pattern: "Heap Pattern",
+          name: "kth smallest",
+          tag: "Kth",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/kth-smallest-element5635/1",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "kth largest",
+          tag: "Kth",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/kth-largest-element-in-an-array/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "TOP K frequent Elements",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/top-k-frequent-elements/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Top K frequent Words",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/top-k-frequent-words/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "K closest points to origin",
+          tag: "K closest",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/k-closest-points-to-origin/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Find K closest elements",
+          tag: "K closest",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/find-k-closest-elements/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Kth weakest row in Matrix",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/the-k-weakest-rows-in-a-matrix/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Merge K Sorted Arrays",
+          tag: "heap as pointer",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/merge-k-sorted-arrays/1",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Kth Smallest in Sorted Matrix",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "LAST STONE WEIGHT",
+          tag: "GREEDY+heap",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/last-stone-weight/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "CPU Task Scheduler",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/task-scheduler/description/"],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Reorganize String",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/reorganize-string/"],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Min number of refueling stops",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/minimum-number-of-refueling-stops/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "IPO",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/ipo/description/"],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Course Scheduler 3",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/course-schedule-iii/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Find median in data stream",
+          tag: "2 heaps",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/find-median-from-data-stream/description/",
+          ],
+        },
+        {
+          pattern: "Heap Pattern",
+          name: "Sliding Window Median (hard)",
+          tag: "2 heaps",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/sliding-window-median/description/",
+          ],
+        },
+
+        // Recursion & Backtracking
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Fibonnaci",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/fibonacci-number/description/",
+            "https://www.youtube.com/watch?v=j4wjZqzhMqc&t",
+          ],
+        },
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Check if string is Pallindrome",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/palindrome-string0817/1",
+          ],
+        },
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Check if Array is Sorted",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/check-if-an-array-is-sorted0701/1",
+            "https://www.youtube.com/watch?v=-gC-QEdpvO4",
+          ],
+        },
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Sum of digits of a number",
+          tag: "",
+          status: "Not Started",
+          links: ["https://www.geeksforgeeks.org/problems/sum-of-digits1742/1"],
+        },
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Remove occurences of a character in string",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/remove-all-occurrences-of-a-character-in-a-string/1",
+          ],
+        },
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Generate parenthesis",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/generate-parentheses/description/",
+          ],
+        },
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Letter Combinations of phone number",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/letter-combinations-of-a-phone-number/description/",
+          ],
+        },
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Permutations",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/permutations/description/"],
+        },
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Combination Sum",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/combination-sum/description/"],
+        },
+        {
+          pattern: "Recursion and Backtracking",
+          name: "Pallindrome partition",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/palindrome-partitioning/description/",
+          ],
+        },
+
+        // Tree Pattern
+        {
+          pattern: "Tree Pattern",
+          name: "Inorder",
+          tag: "Traversal",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/binary-tree-inorder-traversal/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Preorder",
+          tag: "Traversal",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/binary-tree-preorder-traversal/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Postorder",
+          tag: "Traversal",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/binary-tree-postorder-traversal/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Level Order",
+          tag: "Traversal",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/binary-tree-level-order-traversal/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "ZigZag Order",
+          tag: "Traversal",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Level Order II",
+          tag: "Traversal",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/binary-tree-level-order-traversal-ii/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Invert Tree",
+          tag: "Mirror and Symmetry",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/invert-binary-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Symmetric Tree",
+          tag: "Mirror and Symmetry",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/symmetric-tree/description/"],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Same Tree",
+          tag: "Mirror and Symmetry",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/same-tree/description/"],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Subtree of another TREE",
+          tag: "Mirror and Symmetry",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/subtree-of-another-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Flip Equivalent Tree",
+          tag: "Mirror and Symmetry",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/flip-equivalent-binary-trees/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "LCA of Binary TREE",
+          tag: "Search",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Binary Search Tree",
+          tag: "Search",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/search-in-a-binary-search-tree/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "LCA of BST",
+          tag: "Search",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "LCA of Deepest Leaves",
+          tag: "Search",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/lowest-common-ancestor-of-deepest-leaves/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Two Sum IV",
+          tag: "Search",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/two-sum-iv-input-is-a-bst/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Kth smallest element in BST",
+          tag: "Search",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/kth-smallest-element-in-a-bst/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Minimum Depth of Binary Tree",
+          tag: "Validation",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/minimum-depth-of-binary-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Maximum Depth of Binary Tree",
+          tag: "Validation",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/maximum-depth-of-binary-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Balanced Binary Tree",
+          tag: "Validation",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/balanced-binary-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Diameter of Binary Tree",
+          tag: "Validation",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/diameter-of-binary-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Check Completeness of Binary Tree",
+          tag: "Validation",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/check-completeness-of-a-binary-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Validate BST",
+          tag: "Validation",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/validate-binary-search-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Recover BST",
+          tag: "Validation",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/recover-binary-search-tree/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Path Sum",
+          tag: "Path SUM",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/path-sum/description/"],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Path Sum II",
+          tag: "Path SUM",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/path-sum-ii/"],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Sum of Root to Leaf",
+          tag: "Path SUM",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/sum-root-to-leaf-numbers/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Maximum Path Sum",
+          tag: "Path SUM",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/binary-tree-maximum-path-sum/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Contruct tree from preorder and inorder",
+          tag: "Construction",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Contruct tree from postorder and inorder",
+          tag: "Construction",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/description/",
+          ],
+        },
+        {
+          pattern: "Tree Pattern",
+          name: "Sorted Array to BST",
+          tag: "Construction",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/description/",
+          ],
+        },
+
+        // Graphs
+        {
+          pattern: "Graphs",
+          name: "Construct Adjancency List from EDGES+Nodes",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/print-adjacency-list-1587115620/1",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Graph DFS",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/depth-first-traversal-for-a-graph/1",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "GRAPH BFS",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/bfs-traversal-of-graph/1",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Number of Islands",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/number-of-islands/description/",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Number of Provinces",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/number-of-provinces/description/",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Rotten Oranges",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/rotting-oranges/"],
+        },
+        {
+          pattern: "Graphs",
+          name: "Cycle detection in undirected graph",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/detect-cycle-in-an-undirected-graph/1",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Cycle detection in directed graph",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/detect-cycle-in-a-directed-graph/1",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Topological sort",
+          tag: "",
+          status: "Not Started",
+          links: ["https://www.geeksforgeeks.org/problems/topological-sort/1"],
+        },
+        {
+          pattern: "Graphs",
+          name: "Bipartite Graph/ Graph Coloring",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/is-graph-bipartite/"],
+        },
+        {
+          pattern: "Graphs",
+          name: "Surrounded Regoins",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/surrounded-regions/"],
+        },
+        {
+          pattern: "Graphs",
+          name: "Shortest Path in Non-Weighted Graph",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/shortest-path-in-undirected-graph-having-unit-distance/1",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Dijkstra's Algorithm",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/implementing-dijkstra-set-1-adjacency-matrix/1",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Network Delay",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/network-delay-time/"],
+        },
+        {
+          pattern: "Graphs",
+          name: "Path With Minimum Effort",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/path-with-minimum-effort/"],
+        },
+        {
+          pattern: "Graphs",
+          name: "Swim in Rising Water",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/swim-in-rising-water/"],
+        },
+        {
+          pattern: "Graphs",
+          name: "Bellman ford",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/distance-from-the-source-bellman-ford-algorithm/1",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Cheapest Path in K stops",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/cheapest-flights-within-k-stops/description/",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Prim MST",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/minimum-spanning-tree/1",
+          ],
+        },
+        {
+          pattern: "Graphs",
+          name: "Word Ladder",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/word-ladder/"],
+        },
+
+        // DP
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode-02: Fibonacci",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/fibonacci-number/description/",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 03: Climbing Stairs",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/climbing-stairs/description/"],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 04: House Robber",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/house-robber/"],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 05: 0/1 Knapsack",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/0-1-knapsack-problem0945/1",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 06: tabulation Intro",
+          tag: "",
+          status: "Not Started",
+          links: [],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 07: 0/1 Knapsack Tabulation",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/0-1-knapsack-problem0945/1",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 08: Subset sum",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/subset-sum-problem-1611555638/1",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 09: Target Sum",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/target-sum-1626326450/1",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 10: LIS",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/longest-increasing-subsequence/",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 11: LIS Tabulation",
+          tag: "",
+          status: "Not Started",
+          links: [],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 12: LCS",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/longest-common-subsequence/description/",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 13: Unique Paths",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/unique-paths/description/"],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 14: Buy Sell Stocks",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Buy Sell Stocks II",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/description/",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Buy Sell Stocks III",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/description/",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Buy Sell Stocks IV",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/description/",
+          ],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 15: Min cost to cut stick",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/minimum-cost-to-cut-a-stick/"],
+        },
+        {
+          pattern: "DP (Dynamic Programming)",
+          name: "Episode 16: Revision",
+          tag: "",
+          status: "Not Started",
+          links: [],
+        },
+
+        // Greedy
+        {
+          pattern: "Greedy",
+          name: "Lemonade",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/lemonade-change/"],
+        },
+        {
+          pattern: "Greedy",
+          name: "Jump Game",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/jump-game/description/"],
+        },
+        {
+          pattern: "Greedy",
+          name: "Assign cookies",
+          tag: "",
+          status: "Not Started",
+          links: ["https://leetcode.com/problems/assign-cookies/description/"],
+        },
+        {
+          pattern: "Greedy",
+          name: "Fractional Knapsack",
+          tag: "",
+          status: "Not Started",
+          links: [
+            "https://www.geeksforgeeks.org/problems/fractional-knapsack-1587115620/1",
+          ],
+        },
+      ];
+
+      // Each browser/user gets their own persisted tracker state.
+      // The seed data is only the initial question set; its hardcoded
+      // statuses are intentionally ignored so every new user starts fresh.
+      const STORAGE_KEY = "dsa-patterns-tracker-v2";
+      const THEME_KEY = "dsa-patterns-theme";
+      const STATUSES = ["Not Started", "Done", "Revision", "Revisit"];
+
+      let problems = [];
+      let collapsed = {};
+
+      // ---------- Persistence ----------
+      function createInitialProblems() {
+        return SEED_DATA.map((problem) => ({
+          ...problem,
+          status: "Not Started",
+          links: Array.isArray(problem.links) ? [...problem.links] : [],
+        }));
+      }
+
+      function load() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            problems = Array.isArray(parsed) ? parsed : createInitialProblems();
+          } else {
+            // First visit: questions come from SEED_DATA, but progress starts at 0.
+            problems = createInitialProblems();
+            save();
+          }
+        } catch (e) {
+          // If localStorage is unavailable/corrupt, keep the app usable.
+          problems = createInitialProblems();
+        }
+      }
+
+      function save() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(problems));
+        } catch (e) {
+          // Storage can fail in private/restricted browser contexts; don't break the UI.
+        }
+      }
+
+      // ---------- Toast ----------
+      let toastTimer;
+      function toast(msg) {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove("show"), 2000);
+      }
+
+      // ---------- Helpers ----------
+      function escapeHtml(s) {
+        return String(s == null ? "" : s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+      function statusClass(s) {
+        return s.toLowerCase().replace(/\s+/g, "-");
+      }
+      function getFiltered() {
+        const q = document
+          .getElementById("searchInput")
+          .value.toLowerCase()
+          .trim();
+        const pattern = document.getElementById("filterPattern").value;
+        const status = document.getElementById("filterStatus").value;
+        return problems.filter((p) => {
+          if (pattern && p.pattern !== pattern) return false;
+          if (status && p.status !== status) return false;
+          if (q) {
+            const hay = (
+              p.name +
+              " " +
+              p.pattern +
+              " " +
+              (p.tag || "") +
+              " " +
+              (p.notes || "")
+            ).toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+      }
+
+      // ---------- Render ----------
+      function render() {
+        const container = document.getElementById("patternsContainer");
+        const emptyState = document.getElementById("emptyState");
+        const filtered = getFiltered();
+
+        // Group by pattern
+        const groups = {};
+        filtered.forEach((p) => {
+          if (!groups[p.pattern]) groups[p.pattern] = [];
+          groups[p.pattern].push(p);
+        });
+
+        // Sort pattern names with numeric prefixes naturally
+        const patternNames = Object.keys(groups).sort((a, b) => {
+          const na = parseFloat(a.match(/^(\d+)/)?.[1] || "999");
+          const nb = parseFloat(b.match(/^(\d+)/)?.[1] || "999");
+          if (na !== nb) return na - nb;
+          return a.localeCompare(b);
+        });
+
+        container.innerHTML = "";
+
+        if (filtered.length === 0) {
+          emptyState.style.display = "block";
+          updateStats();
+          return;
+        }
+        emptyState.style.display = "none";
+
+        patternNames.forEach((pattern) => {
+          const items = groups[pattern];
+          const doneCount = items.filter((p) => p.status === "Done").length;
+          const pct = items.length
+            ? Math.round((doneCount / items.length) * 100)
+            : 0;
+          const isCollapsed = collapsed[pattern] || false;
+
+          const section = document.createElement("div");
+          section.className =
+            "pattern-section" + (isCollapsed ? " collapsed" : "");
+
+          // Header
+          const header = document.createElement("div");
+          header.className = "pattern-header";
+          header.innerHTML = `
+      <div class="pattern-title">
+        <span class="arrow">▼</span>
+        <span>${escapeHtml(pattern)}</span>
+      </div>
+      <div class="pattern-stats">
+        <span>${doneCount}/${items.length} done</span>
+        <div class="pattern-progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <span style="min-width:34px;text-align:right;">${pct}%</span>
+      </div>
+    `;
+          header.addEventListener("click", () => {
+            collapsed[pattern] = !collapsed[pattern];
+            section.classList.toggle("collapsed");
+          });
+          section.appendChild(header);
+
+          // Body
+          const body = document.createElement("div");
+          body.className = "pattern-body";
+          const tableWrap = document.createElement("div");
+          tableWrap.className = "table-wrap";
+          const table = document.createElement("table");
+          table.innerHTML = `
+      <thead>
+        <tr>
+          <th style="width:36px;">#</th>
+          <th>Problem</th>
+          <th style="width:130px;">Tag</th>
+          <th style="width:120px;">Status</th>
+          <th style="width:220px;">Links</th>
+          <th style="width:90px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+          const tbody = table.querySelector("tbody");
+
+          items.forEach((p, i) => {
+            const realIndex = problems.indexOf(p);
+            const tr = document.createElement("tr");
+            if (p.status === "Done") tr.classList.add("row-done");
+
+            const linksHtml =
+              p.links && p.links.length
+                ? p.links
+                    .map((l, idx) => {
+                      // Short label: LeetCode -> LC, GFG -> GFG, YouTube -> YT, else Link N
+                      let label = `Link ${idx + 1}`;
+                      if (l.includes("leetcode.com"))
+                        label =
+                          p.links.length > 1 ? `LC${idx + 1}` : "LeetCode";
+                      else if (l.includes("geeksforgeeks.org"))
+                        label = p.links.length > 1 ? `GFG${idx + 1}` : "GFG";
+                      else if (
+                        l.includes("youtube.com") ||
+                        l.includes("youtu.be")
+                      )
+                        label = "YouTube";
+                      else if (l.includes("ideserve")) label = "iDeserve";
+                      return `<a href="${escapeHtml(l)}" target="_blank" rel="noopener">${label}</a>`;
+                    })
+                    .join("")
+                : '<span style="color:var(--muted);font-size:0.78rem;">—</span>';
+
+            tr.innerHTML = `
+        <td style="color:var(--muted);">${i + 1}</td>
+        <td><strong>${escapeHtml(p.name)}</strong>${p.notes ? `<div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">${escapeHtml(p.notes)}</div>` : ""}</td>
+        <td>${p.tag ? `<span class="tag-badge">${escapeHtml(p.tag)}</span>` : '<span style="color:var(--muted);">—</span>'}</td>
+        <td><span class="badge ${statusClass(p.status)}" data-idx="${realIndex}" title="Click to cycle status">${escapeHtml(p.status)}</span></td>
+        <td><div class="links">${linksHtml}</div></td>
+        <td>
+          <div class="row-actions">
+            <button class="small" data-edit="${realIndex}">✏️</button>
+            <button class="small danger" data-del="${realIndex}">🗑️</button>
+          </div>
+        </td>
+      `;
+            tbody.appendChild(tr);
+          });
+
+          tableWrap.appendChild(table);
+          body.appendChild(tableWrap);
+          section.appendChild(body);
+          container.appendChild(section);
+        });
+
+        // Attach listeners
+        container.querySelectorAll(".badge[data-idx]").forEach((el) => {
+          el.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const idx = parseInt(el.dataset.idx);
+            const cur = STATUSES.indexOf(problems[idx].status);
+            problems[idx].status = STATUSES[(cur + 1) % STATUSES.length];
+            save();
+            render();
+          });
+        });
+
+        container.querySelectorAll("[data-edit]").forEach((el) => {
+          el.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openEdit(parseInt(el.dataset.edit));
+          });
+        });
+
+        container.querySelectorAll("[data-del]").forEach((el) => {
+          el.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const idx = parseInt(el.dataset.del);
+            if (confirm(`Delete "${problems[idx].name}"?`)) {
+              problems.splice(idx, 1);
+              save();
+              render();
+              toast("Deleted");
+            }
+          });
+        });
+
+        updateStats();
+        updatePatternFilter();
+      }
+
+      function updateStats() {
+        const total = problems.length;
+        const done = problems.filter((p) => p.status === "Done").length;
+        const revision = problems.filter((p) => p.status === "Revision").length;
+        const revisit = problems.filter((p) => p.status === "Revisit").length;
+        const notStarted = problems.filter(
+          (p) => p.status === "Not Started",
+        ).length;
+
+        document.getElementById("statTotal").textContent = total;
+        document.getElementById("statDone").textContent = done;
+        document.getElementById("statDonePct").textContent =
+          `(${total ? Math.round((done / total) * 100) : 0}%)`;
+        document.getElementById("statDoneCount").textContent = done;
+        document.getElementById("statRevision").textContent = revision;
+        document.getElementById("statRevisit").textContent = revisit;
+        document.getElementById("statNotStarted").textContent = notStarted;
+
+        const pct = total ? (done / total) * 100 : 0;
+        document.getElementById("overallProgress").style.width = pct + "%";
+
+        // Patterns count
+        const patternSet = new Set(problems.map((p) => p.pattern));
+        document.getElementById("statPatterns").textContent =
+          patternSet.size + " patterns";
+
+        // Top pattern
+        let topPattern = "—",
+          topPct = 0,
+          topDone = 0,
+          topTotal = 0;
+        patternSet.forEach((pat) => {
+          const items = problems.filter((p) => p.pattern === pat);
+          const d = items.filter((p) => p.status === "Done").length;
+          const pct2 = items.length ? d / items.length : 0;
+          if (pct2 > topPct || (pct2 === topPct && items.length > topTotal)) {
+            topPct = pct2;
+            topPattern = pat;
+            topDone = d;
+            topTotal = items.length;
+          }
+        });
+        document.getElementById("statTopPattern").textContent = topPattern;
+        document.getElementById("statTopPatternPct").textContent = topTotal
+          ? `${topDone}/${topTotal} (${Math.round(topPct * 100)}%)`
+          : "";
+      }
+
+      function updatePatternFilter() {
+        const sel = document.getElementById("filterPattern");
+        const cur = sel.value;
+        const patterns = [...new Set(problems.map((p) => p.pattern))].sort(
+          (a, b) => {
+            const na = parseFloat(a.match(/^(\d+)/)?.[1] || "999");
+            const nb = parseFloat(b.match(/^(\d+)/)?.[1] || "999");
+            if (na !== nb) return na - nb;
+            return a.localeCompare(b);
+          },
+        );
+        sel.innerHTML =
+          '<option value="">All Patterns</option>' +
+          patterns.map((t) => `<option>${escapeHtml(t)}</option>`).join("");
+        if (patterns.includes(cur)) sel.value = cur;
+
+        // datalist
+        document.getElementById("patternList").innerHTML = patterns
+          .map((t) => `<option value="${escapeHtml(t)}">`)
+          .join("");
+      }
+
+      // ---------- Modal ----------
+      const overlay = document.getElementById("modalOverlay");
+      let editingIndex = null;
+
+      function openAdd() {
+        editingIndex = null;
+        document.getElementById("modalTitle").textContent = "Add Problem";
+        document.getElementById("fName").value = "";
+        document.getElementById("fPattern").value = "";
+        document.getElementById("fTag").value = "";
+        document.getElementById("fStatus").value = "Not Started";
+        document.getElementById("fLinks").value = "";
+        document.getElementById("fNotes").value = "";
+        overlay.classList.add("active");
+        setTimeout(() => document.getElementById("fName").focus(), 50);
+      }
+
+      function openEdit(idx) {
+        editingIndex = idx;
+        const p = problems[idx];
+        document.getElementById("modalTitle").textContent = "Edit Problem";
+        document.getElementById("fName").value = p.name;
+        document.getElementById("fPattern").value = p.pattern;
+        document.getElementById("fTag").value = p.tag || "";
+        document.getElementById("fStatus").value = p.status;
+        document.getElementById("fLinks").value = (p.links || []).join("\n");
+        document.getElementById("fNotes").value = p.notes || "";
+        overlay.classList.add("active");
+      }
+
+      function closeModal() {
+        overlay.classList.remove("active");
+        editingIndex = null;
+      }
+
+      document.getElementById("saveBtn").addEventListener("click", () => {
+        const name = document.getElementById("fName").value.trim();
+        if (!name) {
+          toast("Problem name is required");
+          return;
+        }
+        const pattern =
+          document.getElementById("fPattern").value.trim() || "Uncategorized";
+        const links = document
+          .getElementById("fLinks")
+          .value.split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const data = {
+          name,
+          pattern,
+          tag: document.getElementById("fTag").value.trim(),
+          status: document.getElementById("fStatus").value,
+          links,
+          notes: document.getElementById("fNotes").value.trim(),
+        };
+        if (editingIndex === null) {
+          problems.push(data);
+          toast("Added");
+        } else {
+          problems[editingIndex] = data;
+          toast("Updated");
+        }
+        save();
+        closeModal();
+        render();
+      });
+
+      document
+        .getElementById("cancelBtn")
+        .addEventListener("click", closeModal);
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeModal();
+      });
+      document.getElementById("addBtn").addEventListener("click", openAdd);
+
+      // ---------- Filters ----------
+      ["searchInput", "filterPattern", "filterStatus"].forEach((id) => {
+        document.getElementById(id).addEventListener("input", render);
+        document.getElementById(id).addEventListener("change", render);
+      });
+      function clearFilters() {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("filterPattern").value = "";
+        document.getElementById("filterStatus").value = "";
+        render();
+      }
+      document
+        .getElementById("clearFilters")
+        .addEventListener("click", clearFilters);
+      document
+        .getElementById("clearFilters2")
+        .addEventListener("click", clearFilters);
+
+      // ---------- Expand/Collapse ----------
+      document.getElementById("expandAll").addEventListener("click", () => {
+        collapsed = {};
+        render();
+      });
+      document.getElementById("collapseAll").addEventListener("click", () => {
+        const patterns = [...new Set(problems.map((p) => p.pattern))];
+        patterns.forEach((p) => (collapsed[p] = true));
+        render();
+      });
+
+      // ---------- Export CSV ----------
+      document.getElementById("exportBtn").addEventListener("click", () => {
+        if (problems.length === 0) {
+          toast("Nothing to export");
+          return;
+        }
+        const esc = (v) => `"${String(v || "").replace(/"/g, '""')}"`;
+        const lines = ["Remark,Pattern,Problem,Tag,Link 1,Link 2,Link 3"];
+        problems.forEach((p) => {
+          const remark =
+            p.status === "Done"
+              ? "done"
+              : p.status === "Revision"
+                ? "revision"
+                : p.status === "Revisit"
+                  ? "revisit"
+                  : "";
+          const l = p.links || [];
+          lines.push(
+            [
+              remark,
+              p.pattern,
+              p.name,
+              p.tag || "",
+              l[0] || "",
+              l[1] || "",
+              l[2] || "",
+            ]
+              .map(esc)
+              .join(","),
+          );
+        });
+        const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "dsa-patterns-tracker.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+        toast("Exported CSV");
+      });
+
+      // ---------- Theme ----------
+      function applyTheme(t) {
+        document.documentElement.setAttribute("data-theme", t);
+        document.getElementById("themeBtn").textContent =
+          t === "dark" ? "☀️" : "🌙";
+      }
+      document.getElementById("themeBtn").addEventListener("click", () => {
+        const cur =
+          document.documentElement.getAttribute("data-theme") === "light"
+            ? "dark"
+            : "light";
+        localStorage.setItem(THEME_KEY, cur);
+        applyTheme(cur);
+      });
+
+      // ---------- Reset (via keyboard shortcut) ----------
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "r" && e.ctrlKey && e.shiftKey) {
+          e.preventDefault();
+          if (
+            confirm(
+              "Reset all data back to the original cheat sheet? Your changes will be lost.",
+            )
+          ) {
+            localStorage.removeItem(STORAGE_KEY);
+            load();
+            render();
+            toast("Reset to original data");
+          }
+        }
+      });
+
+      // ---------- Init ----------
+      applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+      load();
+      render();
+    </script>
+  </body>
+</html>
